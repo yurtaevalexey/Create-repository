@@ -1,6 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
 import dotenv from "dotenv";
-import express from "express";
 
 dotenv.config();
 
@@ -13,28 +12,67 @@ if (!token) {
 
 const bot = new TelegramBot(token, { polling: true });
 
-// ===== Ларик =====
-const phrases = [
-  "Я на месте. Волга спокойна.",
-  "Футбол пошёл.",
-  "Крылья Советов бы это не одобрили.",
-  "Слишком много уверенности в чате.",
-  "Ладья всё фиксирует.",
-  "Самара смотрит."
+// ===== игроки (потом будем использовать для тегов) =====
+const players = [
+  "@yurtaev_a",
+  "@julbick",
+  "@vko22",
+  "@natochinka",
+  "@shtikovoy",
+  "@vladomir30",
+  "@nastya_mah",
+  "@facesorokina",
+  "@palepinkpollen",
+  "@avepavl"
 ];
 
+// ===== характер Ларика =====
+const phrases = [
+  "Волга сегодня спокойная. Но футбол — нет.",
+  "Я фиксирую этот хаос.",
+  "Крылья Советов бы такое не простили.",
+  "Самара наблюдает молча.",
+  "Слишком уверенно играете. Это подозрительно.",
+  "Я здесь, чтобы судить, но без свистка.",
+  "Ладья уже всё записала."
+];
+
+// ===== утилита случайных сообщений =====
+function random(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// ===== /start =====
 bot.onText(/\/start/, (msg) => {
-  bot.sendMessage(msg.chat.id, "Ларик включился.");
+  bot.sendMessage(msg.chat.id,
+    "Ларик включился ⚽\nСледит за ЧМ и вашим позором."
+  );
 });
 
+// ===== /larik =====
 bot.onText(/\/larik/, (msg) => {
-  const text = phrases[Math.floor(Math.random() * phrases.length)];
-  bot.sendMessage(msg.chat.id, text);
+  bot.sendMessage(msg.chat.id, random(phrases));
 });
 
-console.log("🤖 Ларик запущен...");
+// ===== имитация матча =====
+// (пока без API — просто чтобы бот "жил")
+setInterval(() => {
+  const chance = Math.random();
 
-// ===== ВАЖНО: фейковый сервер для Render =====
+  // редко пишет сам
+  if (chance < 0.97) return;
+
+  const message = random([
+    "⚽ ГОЛ! (возможно, но это не точно)",
+    "📺 VAR проверяет вашу адекватность",
+    "🏁 Матч завершён. Кто-то счастлив, кто-то нет",
+    "🔥 Идёт давление на ворота... как на жизнь в Самаре"
+  ]);
+
+  bot.sendMessage(process.env.CHAT_ID || 0, message);
+}, 60000);
+
+console.log("🤖 Ларик запущен...");// ===== ВАЖНО: фейковый сервер для Render =====
 const app = express();
 
 app.get("/", (req, res) => {
