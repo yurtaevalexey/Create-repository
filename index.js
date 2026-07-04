@@ -1,45 +1,39 @@
 import TelegramBot from "node-telegram-bot-api";
-import fs from "fs";
+import dotenv from "dotenv";
 
-// ===== читаем токен из env.txt =====
-let token = "";
+dotenv.config();
 
-try {
-  const env = fs.readFileSync("./env.txt", "utf8");
-  const match = env.match(/BOT_TOKEN=(.*)/);
-  token = match ? match[1].trim() : null;
-} catch (e) {
-  console.log("❌ не найден env.txt");
-}
+// берём токен из .env
+const token = process.env.BOT_TOKEN;
 
 if (!token) {
-  console.log("❌ нет BOT_TOKEN в env.txt");
+  console.log("❌ BOT_TOKEN не найден в .env");
   process.exit(1);
 }
 
-// ===== создаем бота =====
+// создаём бота
 const bot = new TelegramBot(token, { polling: true });
 
 // ===== характер Ларика =====
 const phrases = [
-  "Я на месте. Волга спокойна, значит и вы держитесь.",
+  "Я на месте. Волга спокойна — значит пока без паники.",
   "Футбол пошёл. Я наблюдаю.",
   "Крылья Советов бы это не одобрили.",
   "Слишком много уверенности в чате. Подозрительно.",
   "Ладья всё фиксирует.",
-  "Я здесь не ради драмы. Но она обычно приходит сама.",
-  "Самара смотрит молча."
+  "Я здесь не ради хаоса. Но он обычно сам приходит.",
+  "Самара молчит, но всё видит."
 ];
 
-// ===== старт =====
+// ===== /start =====
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
-    "Ларик включился. Наблюдаю за происходящим."
+    "Ларик включился. Наблюдаю за матчами и вашим поведением."
   );
 });
 
-// ===== тестовая команда =====
+// ===== /larik =====
 bot.onText(/\/larik/, (msg) => {
   const text = phrases[Math.floor(Math.random() * phrases.length)];
   bot.sendMessage(msg.chat.id, text);
