@@ -1,53 +1,48 @@
 import TelegramBot from "node-telegram-bot-api";
 import dotenv from "dotenv";
+import express from "express";
 
 dotenv.config();
 
-// берём токен из .env
 const token = process.env.BOT_TOKEN;
 
 if (!token) {
-  console.log("❌ BOT_TOKEN не найден в .env");
+  console.log("❌ BOT_TOKEN не найден");
   process.exit(1);
 }
 
-// создаём бота
 const bot = new TelegramBot(token, { polling: true });
 
-// ===== характер Ларика =====
+// ===== Ларик =====
 const phrases = [
-  "Я на месте. Волга спокойна — значит пока без паники.",
-  "Футбол пошёл. Я наблюдаю.",
+  "Я на месте. Волга спокойна.",
+  "Футбол пошёл.",
   "Крылья Советов бы это не одобрили.",
-  "Слишком много уверенности в чате. Подозрительно.",
+  "Слишком много уверенности в чате.",
   "Ладья всё фиксирует.",
-  "Я здесь не ради хаоса. Но он обычно сам приходит.",
-  "Самара молчит, но всё видит."
+  "Самара смотрит."
 ];
 
-// ===== /start =====
 bot.onText(/\/start/, (msg) => {
-  bot.sendMessage(
-    msg.chat.id,
-    "Ларик включился. Наблюдаю за матчами и вашим поведением."
-  );
+  bot.sendMessage(msg.chat.id, "Ларик включился.");
 });
 
-// ===== /larik =====
 bot.onText(/\/larik/, (msg) => {
   const text = phrases[Math.floor(Math.random() * phrases.length)];
   bot.sendMessage(msg.chat.id, text);
 });
 
-// ===== редкие живые реакции =====
-bot.on("message", (msg) => {
-  const chatId = msg.chat.id;
+console.log("🤖 Ларик запущен...");
 
-  // чтобы не спамил
-  if (Math.random() > 0.07) return;
+// ===== ВАЖНО: фейковый сервер для Render =====
+const app = express();
 
-  const text = phrases[Math.floor(Math.random() * phrases.length)];
-  bot.sendMessage(chatId, text);
+app.get("/", (req, res) => {
+  res.send("Larik is alive");
 });
 
-console.log("🤖 Ларик запущен...");
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => {
+  console.log("🌐 Web server running on port " + port);
+});
